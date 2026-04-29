@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html lang="da">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- Portrait tablet viewport — targets 768×1024 physical pixels -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>CityMeet – Kiosk</title>
+
+    <!-- Google Fonts: Plus Jakarta Sans (same as original design) -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet">
+
+    <link rel="stylesheet" href="styles.css">
+</head>
+
+<body>
+
+    <!-- ══════════════════════════════════════════════════════════════════
+     APP ROOT  — all 5 screens live here as absolute-positioned layers.
+     Only the screen with class "active" is visible at any time.
+     JavaScript in app.js handles all navigation and dynamic content.
+     ══════════════════════════════════════════════════════════════════ -->
+    <div id="app">
+
+
+        <!-- ────────────────────────────────────────────────────────────────
+       SCREEN 1 — HOME
+       Entry point. Two large CTA buttons send users to either the
+       activity browser (explore) or the personality quiz.
+       ──────────────────────────────────────────────────────────────── -->
+        <section id="screen-home" class="screen active" aria-label="Hjem">
+            <div class="screen-inner home-inner">
+
+                <div class="home-hero">
+                    <!-- Tagline above the title -->
+                    <p class="home-tagline">Velkommen til</p>
+
+                    <!-- Brand title — "Meet" in accent colour (set via CSS var) -->
+                    <h1 class="home-title">City<span class="accent">Meet</span></h1>
+
+                    <!-- Short description -->
+                    <p class="home-subtitle">
+                        Opdag gratis aktiviteter nær dig – eller find noget der passer præcis til dig.
+                    </p>
+
+                    <!-- Primary call-to-action buttons -->
+                    <div class="home-ctas">
+
+                        <!-- Dark button → activity browser -->
+                        <button class="btn btn-dark btn-lg" onclick="CityMeet.navigateTo('explore')"
+                            aria-label="Se aktiviteter nær dig">
+                            <!-- Search icon -->
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <circle cx="11" cy="11" r="8" />
+                                <line x1="21" y1="21" x2="16.65" y2="16.65" />
+                            </svg>
+                            Se aktiviteter
+                        </button>
+
+                        <!-- Accent button → quiz flow -->
+                        <button class="btn btn-accent btn-lg" onclick="CityMeet.navigateTo('quiz')"
+                            aria-label="Find din personlige aktivitet via test">
+                            <!-- Question / spark icon -->
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                                <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+                                <line x1="12" y1="17" x2="12.01" y2="17" />
+                                <circle cx="12" cy="12" r="10" />
+                            </svg>
+                            Find din aktivitet
+                        </button>
+
+                    </div><!-- /.home-ctas -->
+                </div><!-- /.home-hero -->
+
+            </div><!-- /.screen-inner -->
+        </section><!-- /#screen-home -->
+
+
+        <!-- ────────────────────────────────────────────────────────────────
+       SCREEN 2 — EXPLORE (activity browser)
+       Shows a "Sker i dag" featured grid (today's activities) and a
+       full scrollable list below it, filterable by category pills.
+       Dynamic content rendered by app.js on init.
+       ──────────────────────────────────────────────────────────────── -->
+        <section id="screen-explore" class="screen" aria-label="Aktiviteter nær dig">
+
+            <!-- Close / back button — always returns to home -->
+            <button class="x-btn" onclick="CityMeet.navigateTo('home')" aria-label="Tilbage til forsiden">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <div class="screen-inner explore-inner">
+
+                <h2 class="screen-title">Aktiviteter nær dig</h2>
+
+                <!-- Featured section — only shown when "Alle" filter is active -->
+                <div id="featured-section" class="featured-section">
+                    <div class="section-label">Sker i dag</div>
+                    <!-- 3-column card grid — populated by renderFeaturedGrid() -->
+                    <div id="featured-grid" class="activity-card-grid"></div>
+                </div>
+
+                <!-- Category filter pills — populated by renderCategoryPills() -->
+                <div id="category-pills" class="pill-row" role="group" aria-label="Filtrer kategori"></div>
+
+                <!-- Activity list / filtered cards — populated by renderActivitiesList() -->
+                <div id="activities-container" class="activities-container"></div>
+
+            </div><!-- /.screen-inner -->
+        </section><!-- /#screen-explore -->
+
+
+        <!-- ────────────────────────────────────────────────────────────────
+       SCREEN 3 — DETAIL (single activity)
+       Two-column layout (portrait-adapted): left = image + text,
+       right = info cards + QR attendance box.
+       All content injected by renderDetail() in app.js.
+       Close button returns to the screen that opened this detail.
+       ──────────────────────────────────────────────────────────────── -->
+        <section id="screen-detail" class="screen" aria-label="Aktivitetsdetaljer">
+
+            <!-- Close button — navigates to state.detailReturnScreen (set by openActivity) -->
+            <button class="x-btn" id="detail-x-btn" onclick="CityMeet.closeDetail()" aria-label="Luk detaljevisning">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <div class="screen-inner detail-inner">
+                <!-- Fully populated by renderDetail(activity) — see app.js -->
+                <div id="detail-body" class="detail-body"></div>
+            </div>
+
+        </section><!-- /#screen-detail -->
+
+
+        <!-- ────────────────────────────────────────────────────────────────
+       SCREEN 4 — QUIZ
+       Contains two sub-views toggled by showQuizView():
+         #quiz-intro  — splash / intro with "Start" button
+         #quiz-select — hobby selection grid + "Find aktiviteter" button
+       ──────────────────────────────────────────────────────────────── -->
+        <section id="screen-quiz" class="screen" aria-label="Personlighedstest">
+
+            <!-- X always returns to home from the quiz -->
+            <button class="x-btn" onclick="CityMeet.navigateTo('home')" aria-label="Afslut test">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <!-- ── Sub-view A: Intro ──────────────────────────────────────── -->
+            <div id="quiz-intro" class="quiz-view active">
+                <div class="quiz-intro-content">
+
+                    <span class="quiz-sparkle" aria-hidden="true">✨</span>
+
+                    <h1 class="quiz-intro-title">
+                        Find din<br>
+                        <span class="accent">perfekte aktivitet</span>
+                    </h1>
+
+                    <p class="quiz-intro-subtitle">
+                        Fortæl os om dine interesser — vi finder aktiviteter der passer præcis til dig.
+                    </p>
+
+                    <!-- Advances to hobby-selection sub-view -->
+                    <button class="btn btn-accent btn-lg" onclick="CityMeet.startQuiz()">
+                        Start →
+                    </button>
+
+                </div>
+            </div><!-- /#quiz-intro -->
+
+            <!-- ── Sub-view B: Hobby selection ───────────────────────────── -->
+            <div id="quiz-select" class="quiz-view">
+                <div class="quiz-select-content">
+
+                    <div class="quiz-select-header">
+                        <h2 class="screen-title" style="margin-bottom:0">Hvad interesserer dig?</h2>
+                        <p class="quiz-select-meta">
+                            Vælg mindst 2 —
+                            <span id="quiz-select-count" aria-live="polite">0</span> valgt
+                        </p>
+                    </div>
+
+                    <!-- Populated by renderQuizStep('select') in app.js -->
+                    <div id="quiz-select-grid" class="hobby-grid" role="group" aria-label="Vælg interesser"></div>
+
+                    <div class="quiz-select-footer">
+                        <button id="quiz-select-btn" class="btn btn-accent btn-lg"
+                            onclick="CityMeet.showQuizView('storrelse')" disabled aria-disabled="true">
+                            Næste →
+                        </button>
+                    </div>
+
+                </div>
+            </div><!-- /#quiz-select -->
+
+            <!-- ── Sub-view C: Event size selection ─────────────────────── -->
+            <div id="quiz-storrelse" class="quiz-view">
+                <div class="quiz-select-content">
+
+                    <div class="quiz-select-header">
+                        <h2 class="screen-title" style="margin-bottom:0">Hvor store begivenheder kan du lide?</h2>
+                        <p class="quiz-select-meta">
+                            Vælg mindst 1 —
+                            <span id="quiz-storrelse-count" aria-live="polite">0</span> valgt
+                        </p>
+                    </div>
+
+                    <!-- Populated by renderQuizStep('storrelse') in app.js -->
+                    <div id="quiz-storrelse-grid" class="hobby-grid" role="group" aria-label="Vælg størrelse"></div>
+
+                    <div class="quiz-select-footer">
+                        <button id="quiz-storrelse-btn" class="btn btn-accent btn-lg"
+                            onclick="CityMeet.showQuizView('energi')" disabled aria-disabled="true">
+                            Næste →
+                        </button>
+                    </div>
+
+                </div>
+            </div><!-- /#quiz-storrelse -->
+
+            <!-- ── Sub-view D: Energy level selection ───────────────────── -->
+            <div id="quiz-energi" class="quiz-view">
+                <div class="quiz-select-content">
+
+                    <div class="quiz-select-header">
+                        <h2 class="screen-title" style="margin-bottom:0">Hvor meget energi elsker du?</h2>
+                        <p class="quiz-select-meta">
+                            Vælg mindst 1 —
+                            <span id="quiz-energi-count" aria-live="polite">0</span> valgt
+                        </p>
+                    </div>
+
+                    <!-- Populated by renderQuizStep('energi') in app.js -->
+                    <div id="quiz-energi-grid" class="hobby-grid" role="group" aria-label="Vælg energiniveau"></div>
+
+                    <div class="quiz-select-footer">
+                        <button id="quiz-energi-btn" class="btn btn-accent btn-lg"
+                            onclick="CityMeet.showQuizView('personlighed')" disabled aria-disabled="true">
+                            Næste →
+                        </button>
+                    </div>
+
+                </div>
+            </div><!-- /#quiz-energi -->
+
+            <!-- ── Sub-view E: Personality selection ────────────────────── -->
+            <div id="quiz-personlighed" class="quiz-view">
+                <div class="quiz-select-content">
+
+                    <div class="quiz-select-header">
+                        <h2 class="screen-title" style="margin-bottom:0">Kan du bedst lide at...?</h2>
+                        <p class="quiz-select-meta">
+                            Vælg mindst 1 —
+                            <span id="quiz-personlighed-count" aria-live="polite">0</span> valgt
+                        </p>
+                    </div>
+
+                    <!-- Populated by renderQuizStep('personlighed') in app.js -->
+                    <div id="quiz-personlighed-grid" class="hobby-grid" role="group" aria-label="Vælg personlighedstype"></div>
+
+                    <div class="quiz-select-footer">
+                        <button id="quiz-personlighed-btn" class="btn btn-accent btn-lg"
+                            onclick="CityMeet.submitQuiz()" disabled aria-disabled="true">
+                            Find mine aktiviteter →
+                        </button>
+                    </div>
+
+                </div>
+            </div><!-- /#quiz-personlighed -->
+
+        </section><!-- /#screen-quiz -->
+
+
+        <!-- ────────────────────────────────────────────────────────────────
+       SCREEN 5 — RESULTS (personalised recommendations)
+       3-column grid of ActivityCards scored by quiz selections.
+       Only shows today's featured activities (featured: true).
+       X button returns to quiz intro. "Tag testen igen" also resets.
+       Content rendered by renderResults() in app.js.
+       ──────────────────────────────────────────────────────────────── -->
+        <section id="screen-results" class="screen" aria-label="Aktiviteter til dig">
+
+            <!-- X returns to quiz intro (resets quiz state) -->
+            <button class="x-btn" onclick="CityMeet.navigateTo('quiz')" aria-label="Tilbage til test">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                    stroke-linecap="round" aria-hidden="true">
+                    <line x1="18" y1="6" x2="6" y2="18" />
+                    <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
+            </button>
+
+            <div class="screen-inner results-inner">
+
+                <div class="results-header">
+                    <h2 class="screen-title">Aktiviteter til dig ✨</h2>
+                    <p class="results-subtitle">Baseret på dine interesser</p>
+                </div>
+
+                <!-- 3-column results grid — populated by renderResults() -->
+                <div id="results-grid" class="activity-card-grid results-grid"></div>
+
+                <div class="results-footer">
+                    <button class="btn btn-ghost" onclick="CityMeet.navigateTo('quiz')">
+                        ← Tag testen igen
+                    </button>
+                </div>
+
+            </div><!-- /.screen-inner -->
+        </section><!-- /#screen-results -->
+
+
+    </div><!-- /#app -->
+
+    <!-- All logic, data, and public API in app.js -->
+    <script src="app.js"></script>
+
+</body>
+
+</html>

@@ -1,0 +1,1218 @@
+/* ═══════════════════════════════════════════════════════════════════════
+   CityMeet Kiosk — Stylesheet
+   Target device: portrait tablet (768 × 1024 px)
+   Accent colour and other tokens are exposed as CSS custom properties
+   so app.js can change them at runtime via CityMeet.setAccent().
+   ═══════════════════════════════════════════════════════════════════════ */
+
+
+/* ─── DESIGN TOKENS ─────────────────────────────────────────────────── */
+:root {
+    --accent: #57c389;
+    --accent-light: #6C63FF18;
+    --accent-shadow: #6bff6355;
+    --accent-mid: #6dff6333;
+
+    --bg: linear-gradient(150deg, #dbffec 0%, #ecffea 100%);
+    --surface: rgba(255, 255, 255, 0.88);
+    --surface-blur: blur(14px);
+    --border: rgba(0, 0, 0, 0.07);
+    --shadow-card: 0 4px 20px rgba(0, 0, 0, 0.09);
+    --shadow-hover: 0 10px 36px rgba(0, 0, 0, 0.14);
+    --shadow-btn: 0 10px 40px rgba(0, 0, 0, 0.18);
+
+    --text-primary: #111;
+    --text-secondary: #555;
+    --text-muted: #888;
+    --text-faint: #aaa;
+
+    --font: 'Plus Jakarta Sans', -apple-system, sans-serif;
+    --radius-card: 22px;
+    --radius-btn: 60px;
+    --radius-pill: 40px;
+    --radius-info: 18px;
+
+    --transition-fast: 0.15s ease;
+    --transition-normal: 0.25s ease;
+    --transition-screen: 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+
+/* ─── RESET & BASE ───────────────────────────────────────────────────── */
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+html,
+body {
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    font-family: var(--font);
+    background: var(--bg);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    touch-action: none;
+    font-size: 1.2rem;
+    /* prevent browser pull-to-refresh on kiosk */
+}
+body {
+    transform: scale(0.5);
+    transform-origin: top left;
+    width: 200%; /* 100 / 0.8 */
+    height: 200%;
+}
+
+button {
+    font-family: var(--font);
+    font-size: 1rem;
+    cursor: pointer;
+    border: none;
+    background: transparent;
+    /* Every button supports the ripple overlay */
+    position: relative;
+    overflow: hidden;
+    -webkit-tap-highlight-color: transparent;
+}
+
+button:focus-visible {
+    outline: 3px solid var(--accent);
+    outline-offset: 3px;
+}
+
+svg {
+    display: block;
+    flex-shrink: 0;
+}
+
+
+/* ─── APP CONTAINER ──────────────────────────────────────────────────── */
+/* Fullscreen portrait-tablet layout — fills the entire viewport. */
+#app {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    overflow: hidden;
+}
+
+
+/* ─── SCREENS ────────────────────────────────────────────────────────── */
+/* All screens are stacked on top of each other (position: absolute).
+   Only .screen.active is shown; others are invisible and non-interactive. */
+.screen {
+    position: absolute;
+    inset: 0;
+    background: var(--bg);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(24px) scale(0.98);
+    transition:
+        opacity var(--transition-screen),
+        transform var(--transition-screen);
+    overflow: hidden;
+    will-change: opacity, transform;
+}
+
+.screen.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0) scale(1);
+    z-index: 100;
+}
+
+/* Screen inner padding — consistent for all screens */
+.screen-inner {
+    padding: 36px 44px 32px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    z-index: 1;
+}
+
+/* Common screen heading */
+.screen-title {
+    font-size: 1.75em;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.025em;
+    line-height: 1.15;
+    margin-bottom: 14px;
+}
+
+
+/* ─── X / CLOSE BUTTON ───────────────────────────────────────────────── */
+.x-btn {
+    position: absolute;
+    top: 24px;
+    right: 28px;
+    z-index: 30;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: var(--surface);
+    backdrop-filter: var(--surface-blur);
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+    color: #333;
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast);
+}
+.x-btn svg {
+    width: 25px;
+    height: 25px;
+}
+
+.x-btn:hover {
+    background: #fff;
+    box-shadow: 0 6px 24px rgba(0, 0, 0, 0.16);
+    transform: scale(1.06);
+}
+
+.x-btn:active {
+    transform: scale(0.92);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.10);
+}
+
+
+/* ─── BUTTONS ────────────────────────────────────────────────────────── */
+/* Base button */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    border-radius: var(--radius-btn);
+    font-family: var(--font);
+    font-weight: 700;
+    font-size: 1em;
+    letter-spacing: -0.01em;
+    padding: 16px 40px;
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast),
+        background var(--transition-fast),
+        opacity var(--transition-fast);
+    user-select: none;
+}
+
+/* Large variant — used for primary CTAs */
+.btn-lg {
+    font-size: 1.1875em;
+    padding: 20px 50px;
+}
+
+/* Dark (near-black) button */
+.btn-dark {
+    background: var(--text-primary);
+    color: #fff;
+    box-shadow: var(--shadow-btn);
+}
+
+.btn-dark:hover {
+    background: #2a2a2a;
+    box-shadow: 0 14px 50px rgba(0, 0, 0, 0.25);
+}
+
+.btn-dark:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
+}
+
+/* Accent (purple) button */
+.btn-accent {
+    background: var(--accent);
+    color: #fff;
+    box-shadow: 0 10px 40px var(--accent-shadow);
+    animation: pulse-glow 2.8s ease-in-out infinite;
+}
+
+.btn-accent:hover {
+    background: #399781;
+    box-shadow: 0 14px 50px var(--accent-shadow);
+    animation: none;
+    /* stop glow on hover — let hover shadow take over */
+}
+
+.btn-accent:active {
+    transform: scale(0.95);
+    box-shadow: 0 4px 14px var(--accent-shadow);
+    animation: none;
+}
+
+/* Disabled accent button (quiz find-btn before enough hobbies selected) */
+.btn-accent:disabled,
+.btn-accent[aria-disabled="true"] {
+    background: #ddd;
+    color: #aaa;
+    box-shadow: none;
+    cursor: not-allowed;
+    animation: none;
+    pointer-events: none;
+}
+
+/* Ghost (translucent) button */
+.btn-ghost {
+    background: var(--surface);
+    border: 1px solid rgba(0, 0, 0, 0.10);
+    color: var(--text-secondary);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.btn-ghost:hover {
+    background: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+.btn-ghost:active {
+    transform: scale(0.96);
+}
+
+
+/* ─── RIPPLE ANIMATION ───────────────────────────────────────────────── */
+/* Created by addRipple() in app.js on every button click */
+.ripple-wave {
+    position: absolute;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.35);
+    width: 24px;
+    height: 24px;
+    margin-top: -12px;
+    margin-left: -12px;
+    pointer-events: none;
+    transform: scale(0);
+    animation: ripple-expand 0.65s ease-out forwards;
+}
+
+/* Darker ripple for dark-background buttons */
+.btn-dark .ripple-wave,
+.x-btn .ripple-wave {
+    background: rgba(255, 255, 255, 0.15);
+}
+
+/* Darker ripple for light-background buttons */
+.btn-ghost .ripple-wave,
+.cat-pill .ripple-wave,
+.hobby-pill .ripple-wave,
+.activity-row .ripple-wave {
+    background: rgba(0, 0, 0, 0.06);
+}
+
+
+/* ─── ACCENT COLOUR HELPER ───────────────────────────────────────────── */
+.accent {
+    color: var(--accent);
+}
+
+.accent-text {
+    color: var(--accent);
+}
+
+.section-label {
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    margin-bottom: 10px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCREEN 1 — HOME
+   ═══════════════════════════════════════════════════════════════════════ */
+.home-inner {
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 56px;
+}
+
+.home-hero {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 18px;
+    max-width: 520px;
+}
+
+.home-tagline {
+    font-size: 0.875em;
+    font-weight: 600;
+    color: #bbb;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.home-title {
+    font-size: 4.5em;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.045em;
+    line-height: 1;
+}
+
+.home-subtitle {
+    font-size: 1.125em;
+    color: var(--text-secondary);
+    line-height: 1.6;
+    width: 100%;
+    margin-bottom: 30px;
+}
+
+.home-ctas {
+    display: flex;
+    gap: 18px;
+    margin-top: 10px;
+    flex-wrap: wrap;
+    justify-content: center;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCREEN 2 — EXPLORE
+   ═══════════════════════════════════════════════════════════════════════ */
+.explore-inner {
+    padding-top: 32px;
+    padding-bottom: 20px;
+    gap: 0;
+}
+
+/* Featured "Sker i dag" section */
+.featured-section {
+    margin-bottom: 16px;
+    max-height: 60%;
+    overflow-y: auto;
+}
+
+/* ── Activity card grid (featured + results) ─────────────────────────── */
+.activity-card-grid {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+}
+
+/* ── Category pills row ──────────────────────────────────────────────── */
+.pill-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 12px;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    min-width: 100%;
+    /* hide scrollbar — scroll by touch */
+}
+
+.pill-row::-webkit-scrollbar {
+    display: none;
+}
+
+.cat-pill {
+    padding: 8px 18px;
+    border-radius: var(--radius-pill);
+    font-weight: 600;
+    font-size: 0.8125em;
+    white-space: nowrap;
+    background: var(--surface);
+    color: var(--text-secondary);
+    backdrop-filter: var(--surface-blur);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.07);
+    min-width: fit-content;
+    transition:
+        background var(--transition-normal),
+        color var(--transition-normal),
+        box-shadow var(--transition-normal),
+        transform var(--transition-fast);
+}
+
+.cat-pill:hover {
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.10);
+}
+
+.cat-pill:active {
+    transform: scale(0.94);
+}
+
+.cat-pill.active {
+    background: var(--text-primary);
+    color: #fff;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+}
+
+/* ── Activities container (list or grid depending on active filter) ───── */
+.activities-container {
+    flex: 1;
+    min-height: 0;
+    /* required: lets flex child shrink below content height */
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
+}
+
+.activities-container::-webkit-scrollbar {
+    width: 4px;
+}
+
+.activities-container::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.12);
+    border-radius: 4px;
+}
+
+/* ── Activity list (non-featured items, default "Alle" view) ─────────── */
+.activities-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.activity-row {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px;
+    background: var(--surface);
+    backdrop-filter: var(--surface-blur);
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06);
+    text-align: left;
+    width: 100%;
+    transition:
+        transform var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.activity-row:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.10);
+}
+
+.activity-row:active {
+    transform: translateX(2px) scale(0.99);
+}
+
+/* Thumbnail — small image or emoji for list rows */
+.row-thumb {
+    width: 64px;
+    height: 48px;
+    border-radius: 12px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.375em;
+    overflow: hidden;
+}
+
+.row-thumb.has-image {
+    /* Striped placeholder for activities with images */
+    background: repeating-linear-gradient(45deg,
+            var(--stripe-clr, #ccc) 0px,
+            var(--stripe-clr, #ccc) 5px,
+            rgba(255, 255, 255, 0.55) 5px,
+            rgba(255, 255, 255, 0.55) 10px);
+}
+
+.row-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.row-title {
+    font-size: 1em;
+    font-weight: 700;
+    color: var(--text-primary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.row-meta {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    margin-top: 2px;
+}
+
+.row-right {
+    flex-shrink: 0;
+    text-align: right;
+}
+
+.row-date {
+    font-size: 0.75em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: var(--accent-light);
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 3px;
+    display: inline-block;
+}
+
+.row-distance {
+    font-size: 0.6875em;
+    color: var(--text-faint);
+}
+
+.row-chevron {
+    flex-shrink: 0;
+    opacity: 0.4;
+}
+
+/* ── Filtered card view (category ≠ "Alle") — same 3-col grid as featured ── */
+.cards-grid-filtered {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   ACTIVITY CARD COMPONENT
+   Used in: featured grid (explore), results grid, filtered explore view.
+   ═══════════════════════════════════════════════════════════════════════ */
+.activity-card {
+    background: var(--surface);
+    backdrop-filter: var(--surface-blur);
+    border-radius: var(--radius-card);
+    border: 1px solid var(--border);
+    text-align: left;
+    box-shadow: var(--shadow-card);
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    /* grid handles column sizing */
+    transition:
+        transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
+        box-shadow 0.18s ease;
+}
+
+.activity-card:hover {
+    transform: translateY(-4px) scale(1.01);
+    box-shadow: var(--shadow-hover);
+}
+
+.activity-card:active {
+    transform: translateY(-1px) scale(0.98);
+    box-shadow: var(--shadow-card);
+}
+
+/* Card image area — either striped placeholder or emoji centred */
+.card-image {
+    position: relative;
+    width: 100%;
+    height: 120px;
+    flex-shrink: 0;
+    overflow: hidden;
+}
+
+.card-img-placeholder {
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(45deg,
+            var(--stripe-clr, #ccc) 0px,
+            var(--stripe-clr, #ccc) 5px,
+            rgba(255, 255, 255, 0.55) 5px,
+            rgba(255, 255, 255, 0.55) 10px);
+}
+
+.card-emoji-area {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.75em;
+}
+
+/* Date badge overlaying the card image (top-left) */
+.card-date-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: var(--accent);
+    color: #fff;
+    border-radius: 10px;
+    padding: 4px 10px;
+    line-height: 1.2;
+    text-align: center;
+}
+
+.card-date-day {
+    font-size: 0.875em;
+    font-weight: 800;
+    display: block;
+}
+
+.card-date-month {
+    font-size: 0.625em;
+    font-weight: 600;
+    opacity: 0.85;
+    display: block;
+}
+
+/* Top-right badge — "Bedste match" on results screen */
+.card-top-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    background: var(--text-primary);
+    color: #fff;
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.6875em;
+    font-weight: 700;
+}
+
+/* Card body — text content below the image */
+.card-body {
+    padding: 13px 15px 15px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.card-title {
+    font-size: 1.1em;
+    font-weight: 800;
+    color: var(--text-primary);
+    line-height: 1.2;
+}
+
+.card-time {
+    font-size: 0.75em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.card-desc {
+    font-size: 0.9em;
+    color: var(--text-secondary);
+    line-height: 1.5;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.card-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 8px;
+}
+
+.card-distance {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 0.75em;
+    color: var(--text-muted);
+    font-weight: 500;
+}
+
+.card-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.card-attending {
+    font-size: 0.75em;
+    color: var(--text-faint);
+}
+
+.card-more-btn {
+    background: var(--accent);
+    color: #fff;
+    border-radius: 20px;
+    padding: 5px 13px;
+    font-size: 0.75em;
+    font-weight: 700;
+    pointer-events: none;
+    /* parent button handles the click */
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCREEN 3 — DETAIL
+   Two-column layout adapted for portrait tablet width.
+   Left: image (full width of its column) + category + title + desc + tags
+   Right: info cards (location/time/distance) + attending/QR box
+   ═══════════════════════════════════════════════════════════════════════ */
+.detail-inner {
+    justify-content: center;
+    padding: 44px 44px 36px;
+}
+
+.detail-body {
+    width: 100%;
+}
+
+/* Two-column flex row */
+.detail-layout {
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+    flex-direction: column;
+}
+
+/* Left column */
+.detail-left {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.detail-image {
+    width: 100%;
+    height: 220px;
+    border-radius: 18px;
+    overflow: hidden;
+    flex-shrink: 0;
+}
+
+.detail-image .card-img-placeholder {
+    border-radius: 18px;
+}
+
+.detail-emoji-area {
+    width: 80px;
+    height: 80px;
+    border-radius: 22px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 2.375em;
+}
+
+.detail-category {
+    font-size: 0.75em;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: 0.10em;
+    text-transform: uppercase;
+}
+
+.detail-title {
+    font-size: 2.125em;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.03em;
+    line-height: 1.1;
+}
+
+.detail-desc {
+    font-size: 1em;
+    color: var(--text-secondary);
+    line-height: 1.65;
+}
+
+.detail-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.tag-pill {
+    font-size: 0.8125em;
+    background: rgba(0, 0, 0, 0.06);
+    color: var(--text-secondary);
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-weight: 500;
+}
+
+/* Right column */
+.detail-right {
+    width: 100%;
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+}
+
+/* Individual info card (location / time / distance) */
+.info-card {
+    background: var(--surface);
+    backdrop-filter: var(--surface-blur);
+    border-radius: var(--radius-info);
+    padding: 16px 20px;
+    border: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    width: 100%;
+}
+
+.info-icon {
+    font-size: 1.5em;
+    line-height: 1;
+}
+
+.info-label {
+    font-size: 0.6875em;
+    color: var(--text-faint);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+}
+
+.info-value {
+    font-size: 0.9375em;
+    color: var(--text-primary);
+    font-weight: 700;
+    margin-top: 2px;
+}
+
+/* Attending + QR box */
+.detail-qr-box {
+    background: var(--text-primary);
+    border-radius: var(--radius-info);
+    padding: 18px 20px;
+    width: 100%;
+}
+
+.detail-qr-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 14px;
+}
+
+.attending-label {
+    font-size: 0.6875em;
+    color: rgba(255, 255, 255, 0.45);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 4px;
+}
+
+.attending-count {
+    font-size: 1.5em;
+    font-weight: 800;
+    color: #fff;
+}
+
+.attending-sub {
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.45);
+    margin-top: 2px;
+}
+
+.qr-wrapper {
+    position: relative;
+    overflow: hidden;
+    background: #fff;
+    border-radius: 10px;
+    padding: 7px;
+    flex-shrink: 0;
+    width: 125px;
+}
+.qr-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.detail-qr-caption {
+    border-top: 1px solid rgba(255, 255, 255, 0.10);
+    padding-top: 11px;
+    text-align: center;
+    font-size: 0.75em;
+    color: rgba(255, 255, 255, 0.40);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCREEN 4 — QUIZ
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Sub-view toggle — only .quiz-view.active is shown */
+.quiz-view {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(16px);
+    transition:
+        opacity 0.28s ease,
+        transform 0.28s ease;
+}
+
+.quiz-view.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+}
+
+/* ── Intro view ──────────────────────────────────────────────────────── */
+.quiz-intro-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 60px 80px;
+    gap: 22px;
+}
+
+.quiz-sparkle {
+    font-size: 4em;
+    line-height: 1;
+}
+
+.quiz-intro-title {
+    font-size: 3.25em;
+    font-weight: 800;
+    color: var(--text-primary);
+    letter-spacing: -0.035em;
+    line-height: 1.08;
+}
+
+.quiz-intro-subtitle {
+    font-size: 1.125em;
+    color: var(--text-secondary);
+    max-width: 400px;
+    line-height: 1.6;
+}
+
+/* ── Hobby-selection view ────────────────────────────────────────────── */
+.quiz-select-content {
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    padding: 36px 44px 28px;
+    gap: 0;
+}
+
+.quiz-select-header {
+    margin-bottom: 16px;
+}
+
+.quiz-select-meta {
+    font-size: 0.875em;
+    color: var(--text-muted);
+    margin-top: 6px;
+}
+
+/* 4-column hobby grid — fits comfortably at 768px portrait width */
+.hobby-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 10px;
+    flex: 1;
+    min-height: 0;
+    /* prevents grid from overflowing flex parent */
+    align-content: start;
+    /* rows pack to top instead of stretching */
+}
+
+/* Individual hobby pill */
+.hobby-pill {
+    border-radius: 18px;
+    border: 2px solid transparent;
+    background: var(--surface);
+    backdrop-filter: var(--surface-blur);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 18px 10px;
+    transition:
+        border-color var(--transition-normal),
+        background var(--transition-normal),
+        box-shadow var(--transition-normal),
+        transform var(--transition-fast);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    cursor: pointer;
+}
+
+.hobby-pill:hover {
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.09);
+    transform: translateY(-2px);
+}
+
+.hobby-pill:active {
+    transform: scale(0.94);
+}
+
+.hobby-pill.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+    box-shadow: 0 4px 20px var(--accent-mid);
+    animation: hobby-bounce 0.32s ease;
+}
+
+.hobby-emoji {
+    font-size: 2.1em;
+    line-height: 1;
+}
+
+.hobby-label {
+    font-size: 1em;
+    font-weight: 600;
+    color: var(--text-secondary);
+    text-align: center;
+    line-height: 1.3;
+    transition: color var(--transition-fast);
+}
+
+.hobby-pill.selected .hobby-label {
+    color: var(--accent);
+}
+
+/* Checkmark circle that appears when a hobby is selected */
+.hobby-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    background: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: check-pop 0.22s cubic-bezier(0.34, 1.56, 0.64, 1);
+    flex-shrink: 0;
+}
+
+.quiz-select-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   SCREEN 5 — RESULTS
+   ═══════════════════════════════════════════════════════════════════════ */
+.results-inner {
+    padding-top: 32px;
+    padding-bottom: 24px;
+    gap: 0;
+}
+
+.results-header {
+    margin-bottom: 18px;
+}
+
+.results-subtitle {
+    font-size: 0.875em;
+    color: var(--text-muted);
+    margin-top: 4px;
+}
+
+.results-grid {
+    /* Overrides .activity-card-grid to allow vertical scroll if needed */
+    flex: 1;
+    min-height: 0;
+    /* required so it can shrink within the flex column */
+    overflow-y: auto;
+    overflow-x: hidden;
+    align-content: start;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.10) transparent;
+}
+
+.results-footer {
+    display: flex;
+    justify-content: center;
+    padding-top: 16px;
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════════
+   KEYFRAME ANIMATIONS
+   ═══════════════════════════════════════════════════════════════════════ */
+
+/* Button ripple — wave expands outward and fades */
+@keyframes ripple-expand {
+    to {
+        transform: scale(22);
+        opacity: 0;
+    }
+}
+
+/* Accent CTA button — gentle pulsing glow to attract attention */
+@keyframes pulse-glow {
+
+    0%,
+    100% {
+        box-shadow: 0 10px 40px var(--accent-shadow);
+    }
+
+    50% {
+        box-shadow: 0 10px 60px var(--accent-shadow), 0 0 0 8px var(--accent-light);
+    }
+}
+
+/* Hobby pill — bounces when selected */
+@keyframes hobby-bounce {
+    0% {
+        transform: scale(1);
+    }
+
+    40% {
+        transform: scale(1.09);
+    }
+
+    70% {
+        transform: scale(0.96);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Hobby checkmark — pops into existence */
+@keyframes check-pop {
+    0% {
+        transform: scale(0);
+    }
+
+    70% {
+        transform: scale(1.2);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Activity cards stagger-in on screen entry */
+@keyframes card-enter {
+    from {
+        opacity: 0;
+        transform: translateY(16px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.activity-card,
+.activity-row {
+    animation: card-enter 0.3s ease both;
+}
+
+/* Stagger delays applied inline by renderFeaturedGrid / renderActivitiesList */
