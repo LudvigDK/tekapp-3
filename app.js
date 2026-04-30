@@ -1,7 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   CityMeet Kiosk — App Logic
-   All application state, data, rendering, and navigation live here.
-
+/*
    PUBLIC API  (window.CityMeet):
      CityMeet.navigateTo(screenId)    — go to a screen by id
      CityMeet.openActivity(id, from)  — open activity detail
@@ -13,13 +10,8 @@
      CityMeet.filterCategory(cat)     — filter explore by category
      CityMeet.setAccent(hex)          — change the accent colour at runtime
      CityMeet.getState()              — read-only snapshot of current state
-   ═══════════════════════════════════════════════════════════════════════ */
+*/
 
-
-/* ─── DATA ──────────────────────────────────────────────────────────────
-   Activities: 3 are "featured" (today's events shown in the hero grid).
-   Tags must overlap with HOBBIES ids for the quiz scoring to work.
-   ─────────────────────────────────────────────────────────────────────── */
 let ACTIVITIES = [
     {
         id: 1,
@@ -3412,19 +3404,6 @@ const state = {
     activeCategory: 'Alle',
 };
 
-
-/* ─── HTML GENERATORS ────────────────────────────────────────────────────
-   Pure functions that return HTML strings.  No side effects.
-   Called by the render functions below.
-   ─────────────────────────────────────────────────────────────────────── */
-
-/**
- * Activity card — used in the featured grid, filtered view, and results.
- * @param {object} act        - activity object from ACTIVITIES
- * @param {string} fromScreen - screen id to return to when detail closes
- * @param {string} [topBadge] - optional top-right badge label ("Bedste match")
- * @param {number} [delay]    - CSS animation-delay in ms for stagger effect
- */
 function createActivityCardHTML(act, fromScreen, topBadge, delay) {
     const [day, month] = act.date.split(' ');
     const stripeStyle = act.hasImage
@@ -3481,9 +3460,6 @@ function createActivityCardHTML(act, fromScreen, topBadge, delay) {
   `.trim();
 }
 
-/**
- * Activity list row — used for non-featured items in the "Alle" explore view.
- */
 function createListRowHTML(act, delay) {
     const thumbClass = act.hasImage ? 'row-thumb has-image' : 'row-thumb';
     const thumbStyle = act.hasImage
@@ -3517,9 +3493,6 @@ function createListRowHTML(act, delay) {
   `.trim();
 }
 
-/**
- * Category filter pill button.
- */
 function createCategoryPillHTML(cat, isActive) {
     return `
     <button
@@ -3530,12 +3503,6 @@ function createCategoryPillHTML(cat, isActive) {
   `.trim();
 }
 
-/**
- * Quiz option pill — used for every quiz selection step.
- * @param {object} option   - item from any quiz data array (HOBBIES, STORRELSE, etc.)
- * @param {string} stepId   - QUIZ_STEPS id (e.g. 'select', 'storrelse')
- * @param {boolean} isSelected
- */
 function createQuizOptionHTML(option, stepId, isSelected) {
     const checkmark = isSelected ? `
     <span class="hobby-check" aria-hidden="true">
@@ -3560,10 +3527,6 @@ function createQuizOptionHTML(option, stepId, isSelected) {
   `.trim();
 }
 
-/**
- * Detail screen — full HTML injected into #detail-body.
- * Portrait layout: left column (image + text) + right column (info + QR).
- */
 function createDetailHTML(act) {
     const [day, month] = act.date.split(' ');
 
@@ -3629,10 +3592,6 @@ function createDetailHTML(act) {
   `.trim();
 }
 
-/**
- * Returns an SVG that visually resembles a QR code (placeholder).
- * Replace with a real QR library / image when needed.
- */
 function createQRSVG() {
     const dots = [
         [30, 4], [34, 4], [38, 4], [42, 4], [46, 4],
@@ -3669,12 +3628,6 @@ function createQRSVG() {
   `.trim();
 }
 
-
-/* ─── RENDER FUNCTIONS ───────────────────────────────────────────────────
-   Each function reads from state + data, generates HTML, and writes it
-   to the relevant DOM node.  Call them after state changes.
-   ─────────────────────────────────────────────────────────────────────── */
-
 /** Populates the "Sker i dag" featured 3-column card grid. */
 function renderFeaturedGrid() {
     const featured = ACTIVITIES.filter(a => a.featured);
@@ -3682,11 +3635,6 @@ function renderFeaturedGrid() {
         featured.map((act, i) => createActivityCardHTML(act, 'explore', null, i * 60)).join('');
 }
 
-/**
- * Populates the scrollable activity list / filtered card grid.
- * When activeCategory is "Alle" → shows non-featured items as list rows.
- * Otherwise → shows matching items as wrapping cards.
- */
 function renderActivitiesList() {
     const container = document.getElementById('activities-container');
     const featured = document.getElementById('featured-section');
@@ -3711,16 +3659,11 @@ function renderActivitiesList() {
     }
 }
 
-/** Populates the category pill row in the Explore screen. */
 function renderCategoryPills() {
     document.getElementById('category-pills').innerHTML =
         CATEGORIES.map(cat => createCategoryPillHTML(cat, cat === state.activeCategory)).join('');
 }
 
-/**
- * Re-renders the option grid for a single quiz step and updates its counter + button.
- * @param {string} stepId - must match a QUIZ_STEPS entry
- */
 function renderQuizStep(stepId) {
     const step = QUIZ_STEPS.find(s => s.id === stepId);
     const grid = document.getElementById(`quiz-${stepId}-grid`);
@@ -3734,7 +3677,6 @@ function renderQuizStep(stepId) {
         return createQuizOptionHTML(option, stepId, isSelected);
     }).join('');
 
-    /* Update count label */
     const countEl = document.getElementById(`quiz-${stepId}-count`);
     if (countEl) {
         countEl.textContent = step.multiSelect
@@ -3742,7 +3684,6 @@ function renderQuizStep(stepId) {
             : (selections ? 1 : 0);
     }
 
-    /* Enable/disable the step's next/submit button */
     const btn = document.getElementById(`quiz-${stepId}-btn`);
     if (btn) {
         const count = step.multiSelect
@@ -3754,12 +3695,10 @@ function renderQuizStep(stepId) {
     }
 }
 
-/** Re-renders all quiz steps. */
 function renderAllQuizSteps() {
     QUIZ_STEPS.forEach(step => renderQuizStep(step.id));
 }
 
-/** Populates the results card grid. */
 function renderResults() {
     document.getElementById('results-grid').innerHTML =
         state.quizResults.map((act, i) =>
@@ -3767,23 +3706,10 @@ function renderResults() {
         ).join('');
 }
 
-/** Populates the detail screen body. */
 function renderDetail(activity) {
     document.getElementById('detail-body').innerHTML = createDetailHTML(activity);
 }
 
-
-/* ─── NAVIGATION ─────────────────────────────────────────────────────────
-   Switches between screens by toggling the .active class.
-   Also handles side-effects like resetting quiz state.
-   ─────────────────────────────────────────────────────────────────────── */
-
-/**
- * Navigate to a screen.
- * Valid screenIds: 'home', 'explore', 'detail', 'quiz', 'results'
- *
- * @param {string} screenId
- */
 function navigateTo(screenId) {
     if (screenId === state.currentScreen) return;
 
@@ -3807,11 +3733,6 @@ function navigateTo(screenId) {
     state.currentScreen = screenId;
 }
 
-/**
- * Open an activity's detail screen.
- * @param {number} id         - activity id (from ACTIVITIES)
- * @param {string} fromScreen - screen to return to when detail is closed
- */
 function openActivity(id, fromScreen) {
     const act = ACTIVITIES.find(a => a.id === id);
     if (!act) {
@@ -3824,32 +3745,14 @@ function openActivity(id, fromScreen) {
     navigateTo('detail');
 }
 
-/**
- * Close the detail screen and return to whichever screen opened it.
- * The X-button in index.html calls this.
- */
 function closeDetail() {
     navigateTo(state.detailReturnScreen || 'explore');
 }
 
-
-/* ─── QUIZ LOGIC ─────────────────────────────────────────────────────────*/
-
-/**
- * Advance from quiz intro view to hobby-selection view.
- * Called by the "Start →" button.
- */
 function startQuiz() {
     showQuizView('select');
 }
 
-/**
- * Toggle/select an option in a quiz step, then re-render that step's UI.
- * Multi-select steps toggle the option in a Set.
- * Single-select steps set the value (or deselect if tapping the same option again).
- * @param {string} stepId   - QUIZ_STEPS id
- * @param {string} optionId - option.id from the step's data array
- */
 function toggleOption(stepId, optionId) {
     const step = QUIZ_STEPS.find(s => s.id === stepId);
     if (!step) return;
@@ -3869,11 +3772,6 @@ function toggleOption(stepId, optionId) {
     renderQuizStep(stepId);
 }
 
-/**
- * Score and submit the quiz. Uses all step selections as matching criteria.
- * Hobby matches are weighted 2x since they're the primary interest filter.
- * Navigates to the results screen.
- */
 function submitQuiz() {
     const hobbies = state.quizSelections.get('select');
     if (!hobbies || hobbies.size < 2) return;
@@ -3906,11 +3804,6 @@ function submitQuiz() {
     navigateTo('results');
 }
 
-/**
- * Reset all quiz selections and return to the intro sub-view.
- * Called automatically when navigating to 'quiz' (via navigateTo).
- * Also callable directly as CityMeet.resetQuiz().
- */
 function resetQuiz() {
     /* Re-initialise quizSelections from QUIZ_STEPS config */
     QUIZ_STEPS.forEach(step => {
@@ -3922,11 +3815,6 @@ function resetQuiz() {
     showQuizView('intro');
 }
 
-/**
- * Switch between quiz sub-views.
- * Valid values: 'intro' | any QUIZ_STEPS id (e.g. 'select', 'storrelse', 'energi', 'personlighed')
- * @param {string} view
- */
 function showQuizView(view) {
     const allViewIds = ['intro', ...QUIZ_STEPS.map(s => s.id)];
     allViewIds.forEach(id => {
@@ -3936,29 +3824,12 @@ function showQuizView(view) {
 }
 
 
-/* ─── CATEGORY FILTER ────────────────────────────────────────────────────*/
-
-/**
- * Set the active category and re-render the explore lists/pills.
- * @param {string} category - one of CATEGORIES
- */
 function filterCategory(category) {
     state.activeCategory = category;
     renderCategoryPills();
     renderActivitiesList();
 }
 
-
-/* ─── RIPPLE ANIMATION ───────────────────────────────────────────────────
-   Adds a CSS ripple wave element at the click position.
-   Works for any <button> via event delegation (set up in init).
-   ─────────────────────────────────────────────────────────────────────── */
-
-/**
- * Create and animate a ripple on `button` at the pointer position from `event`.
- * @param {HTMLButtonElement} button
- * @param {MouseEvent|PointerEvent} event
- */
 function addRipple(button, event) {
     const rect = button.getBoundingClientRect();
     const wave = document.createElement('span');
@@ -3966,48 +3837,27 @@ function addRipple(button, event) {
     wave.style.left = (event.clientX - rect.left) + 'px';
     wave.style.top = (event.clientY - rect.top) + 'px';
     button.appendChild(wave);
-    /* Remove the element after the animation finishes to avoid DOM bloat */
     wave.addEventListener('animationend', () => wave.remove(), { once: true });
 }
 
-
-/* ─── VIEWPORT SCALE ─────────────────────────────────────────────────────
-   App is fullscreen — no scaling needed.
-   ─────────────────────────────────────────────────────────────────────── */
 function updateAppScale() { }
 
-
-/* ─── INITIALISATION ─────────────────────────────────────────────────────
-   Runs once the DOM is ready.
-   ─────────────────────────────────────────────────────────────────────── */
 function init() {
-    /* Render all dynamic content into the DOM */
     renderFeaturedGrid();
     renderActivitiesList();
     renderCategoryPills();
     resetQuiz();
 
-    /* Ripple: attach to every button click via delegation (covers dynamic content too) */
     document.getElementById('app').addEventListener('pointerdown', function (e) {
         const btn = e.target.closest('button');
         if (btn) addRipple(btn, e);
     });
-
-    /* Responsive scale — run on load and on resize */
     updateAppScale();
     window.addEventListener('resize', updateAppScale);
 }
 
-/* Kick off when the DOM is ready */
 document.addEventListener('DOMContentLoaded', init);
 
-
-/* ─── PUBLIC API ─────────────────────────────────────────────────────────
-   Everything the user's own JavaScript might need to call.
-   Import this file, then call e.g.:
-     CityMeet.navigateTo('explore');
-     CityMeet.setAccent('#FF6B6B');
-   ─────────────────────────────────────────────────────────────────────── */
 window.CityMeet = {
     /** Navigate to a named screen ('home' | 'explore' | 'detail' | 'quiz' | 'results') */
     navigateTo,
@@ -4058,7 +3908,5 @@ window.CityMeet = {
             activeCategory: state.activeCategory,
         };
     },
-
-    /** Direct access to the raw data arrays (read-only intent). */
     data: { ACTIVITIES, HOBBIES, STORRELSE, ENERGI, PERSONLIGHED, CATEGORIES, QUIZ_STEPS },
 };
