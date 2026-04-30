@@ -1,12 +1,4 @@
-/* ═══════════════════════════════════════════════════════════════════════
-   CityMeet Kiosk — Stylesheet
-   Target device: portrait tablet (768 × 1024 px)
-   Accent colour and other tokens are exposed as CSS custom properties
-   so app.js can change them at runtime via CityMeet.setAccent().
-   ═══════════════════════════════════════════════════════════════════════ */
-
-
-/* ─── DESIGN TOKENS ─────────────────────────────────────────────────── */
+/* --------------- COMMON DESIGN VARS ------------------- */
 :root {
     --accent: #57c389;
     --accent-light: #6C63FF18;
@@ -38,7 +30,7 @@
 }
 
 
-/* ─── RESET & BASE ───────────────────────────────────────────────────── */
+/* ------------------- BASE STYLES --------------------- */
 *,
 *::before,
 *::after {
@@ -56,9 +48,9 @@ body {
     background: var(--bg);
     overflow: hidden;
     -webkit-font-smoothing: antialiased;
-    touch-action: none;
     font-size: 1.2rem;
-    /* prevent browser pull-to-refresh on kiosk */
+    /* prevent browser pull-to-refresh and other default touch actions on body and html in kiosk app */
+    touch-action: none;
 }
 body {
     transform: scale(0.5);
@@ -90,8 +82,6 @@ svg {
 }
 
 
-/* ─── APP CONTAINER ──────────────────────────────────────────────────── */
-/* Fullscreen portrait-tablet layout — fills the entire viewport. */
 #app {
     width: 100%;
     height: 100%;
@@ -100,9 +90,6 @@ svg {
 }
 
 
-/* ─── SCREENS ────────────────────────────────────────────────────────── */
-/* All screens are stacked on top of each other (position: absolute).
-   Only .screen.active is shown; others are invisible and non-interactive. */
 .screen {
     position: absolute;
     inset: 0;
@@ -124,7 +111,6 @@ svg {
     z-index: 100;
 }
 
-/* Screen inner padding — consistent for all screens */
 .screen-inner {
     padding: 36px 44px 32px;
     height: 100%;
@@ -134,7 +120,6 @@ svg {
     z-index: 1;
 }
 
-/* Common screen heading */
 .screen-title {
     font-size: 1.75em;
     font-weight: 800;
@@ -145,7 +130,6 @@ svg {
 }
 
 
-/* ─── X / CLOSE BUTTON ───────────────────────────────────────────────── */
 .x-btn {
     position: absolute;
     top: 24px;
@@ -184,8 +168,6 @@ svg {
 }
 
 
-/* ─── BUTTONS ────────────────────────────────────────────────────────── */
-/* Base button */
 .btn {
     display: inline-flex;
     align-items: center;
@@ -205,13 +187,11 @@ svg {
     user-select: none;
 }
 
-/* Large variant — used for primary CTAs */
 .btn-lg {
     font-size: 1.1875em;
     padding: 20px 50px;
 }
 
-/* Dark (near-black) button */
 .btn-dark {
     background: var(--text-primary);
     color: #fff;
@@ -228,7 +208,6 @@ svg {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
 }
 
-/* Accent (purple) button */
 .btn-accent {
     background: var(--accent);
     color: #fff;
@@ -240,7 +219,6 @@ svg {
     background: #399781;
     box-shadow: 0 14px 50px var(--accent-shadow);
     animation: none;
-    /* stop glow on hover — let hover shadow take over */
 }
 
 .btn-accent:active {
@@ -249,7 +227,6 @@ svg {
     animation: none;
 }
 
-/* Disabled accent button (quiz find-btn before enough hobbies selected) */
 .btn-accent:disabled,
 .btn-accent[aria-disabled="true"] {
     background: #ddd;
@@ -260,7 +237,6 @@ svg {
     pointer-events: none;
 }
 
-/* Ghost (translucent) button */
 .btn-ghost {
     background: var(--surface);
     border: 1px solid rgba(0, 0, 0, 0.10);
@@ -278,8 +254,6 @@ svg {
 }
 
 
-/* ─── RIPPLE ANIMATION ───────────────────────────────────────────────── */
-/* Created by addRipple() in app.js on every button click */
 .ripple-wave {
     position: absolute;
     border-radius: 50%;
@@ -293,13 +267,11 @@ svg {
     animation: ripple-expand 0.65s ease-out forwards;
 }
 
-/* Darker ripple for dark-background buttons */
 .btn-dark .ripple-wave,
 .x-btn .ripple-wave {
     background: rgba(255, 255, 255, 0.15);
 }
 
-/* Darker ripple for light-background buttons */
 .btn-ghost .ripple-wave,
 .cat-pill .ripple-wave,
 .hobby-pill .ripple-wave,
@@ -308,7 +280,6 @@ svg {
 }
 
 
-/* ─── ACCENT COLOUR HELPER ───────────────────────────────────────────── */
 .accent {
     color: var(--accent);
 }
@@ -327,9 +298,6 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SCREEN 1 — HOME
-   ═══════════════════════════════════════════════════════════════════════ */
 .home-inner {
     align-items: center;
     justify-content: center;
@@ -378,30 +346,24 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SCREEN 2 — EXPLORE
-   ═══════════════════════════════════════════════════════════════════════ */
 .explore-inner {
     padding-top: 32px;
     padding-bottom: 20px;
     gap: 0;
 }
 
-/* Featured "Sker i dag" section */
 .featured-section {
     margin-bottom: 16px;
     max-height: 60%;
     overflow-y: auto;
 }
 
-/* ── Activity card grid (featured + results) ─────────────────────────── */
 .activity-card-grid {
     display: flex;
     flex-wrap: wrap;
     gap: 12px;
 }
 
-/* ── Category pills row ──────────────────────────────────────────────── */
 .pill-row {
     display: flex;
     gap: 8px;
@@ -411,7 +373,6 @@ svg {
     padding-bottom: 4px;
     scrollbar-width: none;
     min-width: 100%;
-    /* hide scrollbar — scroll by touch */
 }
 
 .pill-row::-webkit-scrollbar {
@@ -450,11 +411,9 @@ svg {
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
 }
 
-/* ── Activities container (list or grid depending on active filter) ───── */
 .activities-container {
     flex: 1;
     min-height: 0;
-    /* required: lets flex child shrink below content height */
     overflow-y: auto;
     scrollbar-width: thin;
     scrollbar-color: rgba(0, 0, 0, 0.12) transparent;
@@ -469,7 +428,6 @@ svg {
     border-radius: 4px;
 }
 
-/* ── Activity list (non-featured items, default "Alle" view) ─────────── */
 .activities-list {
     display: flex;
     flex-direction: column;
@@ -502,7 +460,6 @@ svg {
     transform: translateX(2px) scale(0.99);
 }
 
-/* Thumbnail — small image or emoji for list rows */
 .row-thumb {
     width: 64px;
     height: 48px;
@@ -516,7 +473,6 @@ svg {
 }
 
 .row-thumb.has-image {
-    /* Striped placeholder for activities with images */
     background: repeating-linear-gradient(45deg,
             var(--stripe-clr, #ccc) 0px,
             var(--stripe-clr, #ccc) 5px,
@@ -570,7 +526,6 @@ svg {
     opacity: 0.4;
 }
 
-/* ── Filtered card view (category ≠ "Alle") — same 3-col grid as featured ── */
 .cards-grid-filtered {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
@@ -578,10 +533,6 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   ACTIVITY CARD COMPONENT
-   Used in: featured grid (explore), results grid, filtered explore view.
-   ═══════════════════════════════════════════════════════════════════════ */
 .activity-card {
     background: var(--surface);
     backdrop-filter: var(--surface-blur);
@@ -593,7 +544,6 @@ svg {
     display: flex;
     flex-direction: column;
     width: 100%;
-    /* grid handles column sizing */
     transition:
         transform 0.18s cubic-bezier(0.22, 1, 0.36, 1),
         box-shadow 0.18s ease;
@@ -609,7 +559,6 @@ svg {
     box-shadow: var(--shadow-card);
 }
 
-/* Card image area — either striped placeholder or emoji centred */
 .card-image {
     position: relative;
     width: 100%;
@@ -637,7 +586,6 @@ svg {
     font-size: 2.75em;
 }
 
-/* Date badge overlaying the card image (top-left) */
 .card-date-badge {
     position: absolute;
     top: 10px;
@@ -663,7 +611,6 @@ svg {
     display: block;
 }
 
-/* Top-right badge — "Bedste match" on results screen */
 .card-top-badge {
     position: absolute;
     top: 10px;
@@ -676,7 +623,6 @@ svg {
     font-weight: 700;
 }
 
-/* Card body — text content below the image */
 .card-body {
     padding: 13px 15px 15px;
     flex: 1;
@@ -744,16 +690,9 @@ svg {
     font-size: 0.75em;
     font-weight: 700;
     pointer-events: none;
-    /* parent button handles the click */
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SCREEN 3 — DETAIL
-   Two-column layout adapted for portrait tablet width.
-   Left: image (full width of its column) + category + title + desc + tags
-   Right: info cards (location/time/distance) + attending/QR box
-   ═══════════════════════════════════════════════════════════════════════ */
 .detail-inner {
     justify-content: center;
     padding: 44px 44px 36px;
@@ -763,7 +702,6 @@ svg {
     width: 100%;
 }
 
-/* Two-column flex row */
 .detail-layout {
     display: flex;
     gap: 32px;
@@ -771,7 +709,6 @@ svg {
     flex-direction: column;
 }
 
-/* Left column */
 .detail-left {
     flex: 1;
     min-width: 0;
@@ -839,7 +776,6 @@ svg {
     font-weight: 500;
 }
 
-/* Right column */
 .detail-right {
     width: 100%;
     flex-shrink: 0;
@@ -848,7 +784,6 @@ svg {
     gap: 12px;
 }
 
-/* Individual info card (location / time / distance) */
 .info-card {
     background: var(--surface);
     backdrop-filter: var(--surface-blur);
@@ -881,7 +816,6 @@ svg {
     margin-top: 2px;
 }
 
-/* Attending + QR box */
 .detail-qr-box {
     background: var(--text-primary);
     border-radius: var(--radius-info);
@@ -940,11 +874,6 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SCREEN 4 — QUIZ
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* Sub-view toggle — only .quiz-view.active is shown */
 .quiz-view {
     position: absolute;
     inset: 0;
@@ -962,7 +891,6 @@ svg {
     transform: translateY(0);
 }
 
-/* ── Intro view ──────────────────────────────────────────────────────── */
 .quiz-intro-content {
     height: 100%;
     display: flex;
@@ -994,7 +922,6 @@ svg {
     line-height: 1.6;
 }
 
-/* ── Hobby-selection view ────────────────────────────────────────────── */
 .quiz-select-content {
     height: 100%;
     display: flex;
@@ -1013,19 +940,15 @@ svg {
     margin-top: 6px;
 }
 
-/* 4-column hobby grid — fits comfortably at 768px portrait width */
 .hobby-grid {
     display: grid;
     grid-template-columns: repeat(2, 1fr);
     gap: 10px;
     flex: 1;
     min-height: 0;
-    /* prevents grid from overflowing flex parent */
     align-content: start;
-    /* rows pack to top instead of stretching */
 }
 
-/* Individual hobby pill */
 .hobby-pill {
     border-radius: 18px;
     border: 2px solid transparent;
@@ -1080,7 +1003,6 @@ svg {
     color: var(--accent);
 }
 
-/* Checkmark circle that appears when a hobby is selected */
 .hobby-check {
     width: 18px;
     height: 18px;
@@ -1100,9 +1022,6 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   SCREEN 5 — RESULTS
-   ═══════════════════════════════════════════════════════════════════════ */
 .results-inner {
     padding-top: 32px;
     padding-bottom: 24px;
@@ -1120,7 +1039,6 @@ svg {
 }
 
 .results-grid {
-    /* Overrides .activity-card-grid to allow vertical scroll if needed */
     flex: 1;
     min-height: 0;
     /* required so it can shrink within the flex column */
@@ -1138,11 +1056,7 @@ svg {
 }
 
 
-/* ═══════════════════════════════════════════════════════════════════════
-   KEYFRAME ANIMATIONS
-   ═══════════════════════════════════════════════════════════════════════ */
-
-/* Button ripple — wave expands outward and fades */
+/* Button ripple - wave expands outward and fades */
 @keyframes ripple-expand {
     to {
         transform: scale(22);
@@ -1150,7 +1064,7 @@ svg {
     }
 }
 
-/* Accent CTA button — gentle pulsing glow to attract attention */
+/* Accent CTA button - gentle pulsing glow to attract attention */
 @keyframes pulse-glow {
 
     0%,
@@ -1163,7 +1077,7 @@ svg {
     }
 }
 
-/* Hobby pill — bounces when selected */
+/* Hobby pill - bounces when selected */
 @keyframes hobby-bounce {
     0% {
         transform: scale(1);
@@ -1182,7 +1096,7 @@ svg {
     }
 }
 
-/* Hobby checkmark — pops into existence */
+/* Hobby checkmark - pops into existence */
 @keyframes check-pop {
     0% {
         transform: scale(0);
